@@ -66,7 +66,7 @@ The integration automatically loads the bundled card and manages its version. No
 2. Edit your dashboard, select **Add card**, and search for **Solar Window**.
 3. Use the visual editor to set the title, starting view (**Year**, **Month**, or **Week**), and Solar Window installation.
 
-With one configured installation, selection is automatic. With multiple installations, choose one from the editor's **Installation** list. Existing manual resource entries from v0.1.0 can remain; duplicate loading is handled safely. You no longer need to update their version suffix.
+With one configured installation, selection is automatic. With multiple installations, choose one from the editor's **Installation** list. The integration registers and updates its dashboard resource automatically. Existing manual Solar Window resource entries are updated too; other resources are preserved. YAML resource configurations use the automatically loaded frontend module.
 
 <details>
 <summary>Optional YAML configuration</summary>

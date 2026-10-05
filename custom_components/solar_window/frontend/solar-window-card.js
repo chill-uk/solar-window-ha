@@ -1,4 +1,4 @@
-/* Solar Window 0.1.2 — dependency-free Home Assistant card. */
+/* Solar Window 0.1.3 — dependency-free Home Assistant card. */
 export const escapeHtml = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function dateAdd(key, count) {
   const d = new Date(`${key}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + count); return d.toISOString().slice(0,10);
