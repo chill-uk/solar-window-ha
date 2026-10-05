@@ -1,0 +1,12 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+globalThis.HTMLElement=class {};
+globalThis.customElements={define(){}};
+globalThis.window={};
+const {monday,dateAdd,localParts,historyToDays,escapeHtml}=await import('../custom_components/solar_window/frontend/solar-window-card.js');
+test('calendar weeks cross year and leap days',()=>{assert.equal(monday('2026-10-04'),'2026-09-28');assert.equal(monday('2027-01-01'),'2026-12-28');assert.equal(dateAdd('2024-02-28',1),'2024-02-29');});
+test('timezone conversion respects DST',()=>{assert.equal(localParts('2026-10-04T06:17:00Z','Europe/Amsterdam').time,'08:17');assert.equal(localParts('2026-10-26T07:17:00Z','Europe/Amsterdam').time,'08:17');});
+test('history preserves first start and last finish on cloudy days',()=>{const rows=historyToDays('entity_id,state,last_changed\nx,on,2026-10-01T06:00Z\nx,off,2026-10-01T10:00Z\nx,on,2026-10-01T11:00Z\nx,off,2026-10-01T17:00Z','Europe/Amsterdam');assert.equal(rows.length,1);assert.equal(rows[0].start,'2026-10-01T06:00:00.000Z');assert.equal(rows[0].finish,'2026-10-01T17:00:00.000Z');assert.ok(rows[0].flags.includes('interrupted'));});
+test('incomplete records stay incomplete and mixed CSV is rejected',()=>{assert.equal(historyToDays('entity_id,state,last_changed\nx,on,2026-10-01T06:00Z','Europe/Amsterdam')[0].finish,null);assert.throws(()=>historyToDays('entity_id,state,last_changed\nx,on,2026-10-01T06:00Z\ny,off,2026-10-01T07:00Z','Europe/Amsterdam'));});
+test('unavailable and duplicate states do not fabricate transitions',()=>{const rows=historyToDays('entity_id,state,last_changed\nx,on,2026-10-01T06:00Z\nx,on,2026-10-01T06:01Z\nx,unavailable,2026-10-01T07:00Z\nx,off,2026-10-01T08:00Z','Europe/Amsterdam');assert.equal(rows[0].finish,null);assert.ok(rows[0].flags.includes('recording_gap'));});
+test('labels escape HTML',()=>assert.equal(escapeHtml('<script>"'), '&lt;script&gt;&quot;'));

@@ -1,0 +1,44 @@
+{
+  "title": "Solar Window",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Solar Window",
+        "description": "Choose PV generation sensors, not household consumption or grid export. No helpers are needed.",
+        "data": {
+          "power_entities": "Solar power sensors (summed)",
+          "energy_entity": "Optional solar energy sensor for historical backfill",
+          "start_w": "Start threshold (W)",
+          "stop_w": "Stop threshold (W)",
+          "start_minutes": "Start confirmation (minutes)",
+          "stop_minutes": "Stop confirmation (minutes)"
+        }
+      }
+    },
+    "error": {
+      "no_power": "Select at least one power sensor.",
+      "invalid_threshold": "Start threshold must be greater than stop threshold.",
+      "invalid_power": "Power sensors must exist and use W, kW or MW."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Solar Window settings",
+        "data": {
+          "power_entities": "Solar power sensors (summed)",
+          "energy_entity": "Optional solar energy sensor for historical backfill",
+          "start_w": "Start threshold (W)",
+          "stop_w": "Stop threshold (W)",
+          "start_minutes": "Start confirmation (minutes)",
+          "stop_minutes": "Stop confirmation (minutes)"
+        }
+      }
+    },
+    "error": {
+      "no_power": "Select at least one power sensor.",
+      "invalid_threshold": "Start threshold must be greater than stop threshold.",
+      "invalid_power": "Power sensors must exist and use W, kW or MW."
+    }
+  }
+}
