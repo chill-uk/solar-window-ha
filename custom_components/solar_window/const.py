@@ -1,3 +1,3 @@
 DOMAIN = 'solar_window'
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 DEFAULTS = {'start_w': 20.0, 'stop_w': 10.0, 'start_minutes': 3.0, 'stop_minutes': 10.0}

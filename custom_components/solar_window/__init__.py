@@ -1,26 +1,24 @@
 """Solar Window: local recording and authenticated dashboard API."""
 from __future__ import annotations
 from datetime import timedelta
-from pathlib import Path
 import logging
 import math
 import voluptuous as vol
 from homeassistant.components import websocket_api
-from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_state_change_event, async_track_time_interval
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 from .const import DOMAIN, VERSION, DEFAULTS
 from .engine import SolarEngine
+from .frontend import async_register_frontend
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup(hass: HomeAssistant, config):
     hass.data.setdefault(DOMAIN, {})
-    await hass.http.async_register_static_paths([StaticPathConfig(
-        '/solar_window/solar-window-card.js', str(Path(__file__).parent / 'frontend' / 'solar-window-card.js'), False)])
+    await async_register_frontend(hass)
     websocket_api.async_register_command(hass, ws_records)
     websocket_api.async_register_command(hass, ws_import)
     websocket_api.async_register_command(hass, ws_backfill)

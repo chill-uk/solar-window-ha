@@ -58,28 +58,25 @@ Open the integration's **Configure** dialog to change the sources or detection s
 
 ## Dashboard card
 
-The card is bundled with the integration. Register it once in **Settings → Dashboards → ⋮ → Resources**:
+The integration automatically loads the bundled card and manages its version. No dashboard resource registration is needed.
 
-- URL: `/solar_window/solar-window-card.js?v=0.1.0`
-- Type: **JavaScript Module**
+1. After installing or updating the integration, restart Home Assistant and refresh your browser.
+2. Edit your dashboard, select **Add card**, and search for **Solar Window**.
+3. Use the visual editor to set the title, starting view (**Year**, **Month**, or **Week**), and Solar Window installation.
 
-Enable Advanced Mode on your user profile if Resources is hidden. Resource registration is manual in this preview. After an update, change the URL's version suffix and refresh the browser to load the new card.
+With one configured installation, selection is automatic. With multiple installations, choose one from the editor's **Installation** list. Existing manual resource entries from v0.1.0 can remain; duplicate loading is handled safely. You no longer need to update their version suffix.
 
-Add a Manual card to your dashboard:
+<details>
+<summary>Optional YAML configuration</summary>
 
 ```yaml
 type: custom:solar-window-card
 title: Solar production window
-view: year
-```
-
-A card with one configured integration selects it automatically. If you configure multiple installations, specify `entry_id`. You can find it by opening the integration's configuration entry page and copying its ID from the URL:
-
-```yaml
-type: custom:solar-window-card
-entry_id: YOUR_CONFIG_ENTRY_ID
 view: year  # year, month or week
+# entry_id: YOUR_CONFIG_ENTRY_ID  # optional with one installation
 ```
+
+</details>
 
 ## Explore your history
 

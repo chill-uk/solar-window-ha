@@ -1,4 +1,4 @@
-/* Solar Window 0.1.0 — dependency-free Home Assistant card. */
+/* Solar Window 0.1.1 — dependency-free Home Assistant card. */
 export const escapeHtml = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function dateAdd(key, count) {
   const d = new Date(`${key}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + count); return d.toISOString().slice(0,10);
@@ -65,7 +65,8 @@ class SolarWindowCard extends HTMLElement {
   connectedCallback() {if(!this._timer)this._timer=setInterval(()=>this.load(),60000);if(this._hass)this.load();}
   disconnectedCallback() {clearInterval(this._timer);this._timer=null;}
   getCardSize() {return this._mode==='month'?12:7;}
-  static getStubConfig() {return {type:'custom:solar-window-card'};}
+  static getStubConfig() {return {type:'custom:solar-window-card',view:'year'};}
+  static getConfigElement() {return document.createElement('solar-window-card-editor');}
   async load() {
     if(!this._hass||!this._config)return;
     const request=++this._request;
@@ -75,7 +76,7 @@ class SolarWindowCard extends HTMLElement {
         if(request!==this._request)return;
         if(this._config.entry_id)this._entry=this._config.entry_id;
         else if(data.entries.length===1)this._entry=data.entries[0].entry_id;
-        else throw new Error(data.entries.length?'Set entry_id in card YAML to select a Solar Window installation':'Add the Solar Window integration first');
+        else throw new Error(data.entries.length?'Choose an installation in the card visual editor':'Add the Solar Window integration first');
       }
       // A week crossing New Year needs both years.
       const years=[this._year];
@@ -194,6 +195,45 @@ class SolarWindowCard extends HTMLElement {
     const a=document.createElement('a');a.href=url;a.download=`solar-window-${this._year}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }
 }
-customElements.define('solar-window-card',SolarWindowCard);
+class SolarWindowCardEditor extends HTMLElement {
+  constructor() {super();this.attachShadow({mode:'open'});this._entries=[];this._config={};}
+  setConfig(config) {this._config={...config};this.render();}
+  set hass(hass) {
+    this._hass=hass;
+    if(!this._loading && !this._loaded)this.loadEntries();
+  }
+  async loadEntries() {
+    this._loading=true;
+    try {
+      const data=await this._hass.callWS({type:'solar_window/records'});
+      this._entries=data.entries;this._loaded=true;this._error=null;
+    } catch(e) {this._error=e.message||String(e);}
+    finally {this._loading=false;this.render();}
+  }
+  update(key,value) {
+    const config={...this._config};
+    if(value)config[key]=value;else delete config[key];
+    this._config=config;
+    this.dispatchEvent(new CustomEvent('config-changed',{detail:{config},bubbles:true,composed:true}));
+  }
+  render() {
+    const config=this._config;
+    const entries=[...this._entries];
+    if(config.entry_id && !entries.some(entry=>entry.entry_id===config.entry_id))entries.push({entry_id:config.entry_id,title:'Unavailable installation'});
+    this.shadowRoot.innerHTML=`<style>
+      :host{display:block;color:var(--primary-text-color)}
+      label{display:block;margin:16px 0 6px}input,select{box-sizing:border-box;width:100%;padding:12px;border:1px solid var(--divider-color,#aaa);border-radius:6px;background:var(--card-background-color,#fff);color:inherit;font:inherit}
+      p{color:var(--secondary-text-color);font-size:14px}
+    </style>
+    <label for="title">Title</label><input id="title" placeholder="Solar production window" value="${escapeHtml(config.title||'')}">
+    <label for="view">Starting view</label><select id="view">${['year','month','week'].map(view=>`<option value="${view}" ${view===(config.view||'year')?'selected':''}>${view[0].toUpperCase()+view.slice(1)}</option>`).join('')}</select>
+    <label for="entry_id">Installation</label><select id="entry_id"><option value="" ${!config.entry_id?'selected':''}>Automatic (single installation)</option>${entries.map(entry=>`<option value="${escapeHtml(entry.entry_id)}" ${entry.entry_id===config.entry_id?'selected':''}>${escapeHtml(entry.title||'Solar Window')}${entries.length>1?' ('+escapeHtml(entry.entry_id.slice(0,8))+')':''}</option>`).join('')}</select>
+    <p>${this._error?escapeHtml(this._error):'Choose an installation when more than one is configured.'}</p>`;
+    for(const key of ['title','view','entry_id'])this.shadowRoot.querySelector('#'+key).onchange=event=>this.update(key,event.target.value);
+  }
+}
+// Older manual resources can coexist with the automatically versioned module.
+if(!customElements.get('solar-window-card'))customElements.define('solar-window-card',SolarWindowCard);
+if(!customElements.get('solar-window-card-editor'))customElements.define('solar-window-card-editor',SolarWindowCardEditor);
 window.customCards=window.customCards||[];
-window.customCards.push({type:'solar-window-card',name:'Solar Window',description:'Daily solar production windows with year, month and week drill-down.'});
+if(!window.customCards.some(card=>card.type==='solar-window-card'))window.customCards.push({type:'solar-window-card',name:'Solar Window',preview:true,description:'Daily solar production windows with year, month and week drill-down.'});

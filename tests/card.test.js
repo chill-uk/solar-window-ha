@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 globalThis.HTMLElement=class {};
-globalThis.customElements={define(){}};
+globalThis.customElements={get(){},define(){}};
 globalThis.window={};
 const {monday,dateAdd,localParts,historyToDays,escapeHtml}=await import('../custom_components/solar_window/frontend/solar-window-card.js');
 test('calendar weeks cross year and leap days',()=>{assert.equal(monday('2026-10-04'),'2026-09-28');assert.equal(monday('2027-01-01'),'2026-12-28');assert.equal(dateAdd('2024-02-28',1),'2024-02-29');});
