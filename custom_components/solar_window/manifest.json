@@ -12,9 +12,9 @@
     "websocket_api"
   ],
   "documentation": "https://github.com/chill-uk/solar-window-ha",
-  "integration_type": "helper",
+  "integration_type": "service",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/chill-uk/solar-window-ha/issues",
   "requirements": [],
-  "version": "0.1.1"
+  "version": "0.1.2"
 }

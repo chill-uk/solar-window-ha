@@ -56,6 +56,8 @@ Open the integration's **Configure** dialog to change the sources or detection s
 | Start confirmation | 3 minutes |
 | Stop confirmation | 10 minutes |
 
+Solar Window is managed under **Settings → Devices & services → Integrations**. If upgrading from v0.1.0 or v0.1.1, restart Home Assistant after updating; your saved configuration and history remain in place.
+
 ## Dashboard card
 
 The integration automatically loads the bundled card and manages its version. No dashboard resource registration is needed.
