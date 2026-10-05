@@ -1,26 +1,76 @@
-# Solar Window for Home Assistant — v0.1.0 preview
+# Solar Window for Home Assistant
 
-A local Home Assistant custom integration and bundled dashboard card that show when your solar panels produce throughout the year. No helpers, automations, extra sensors or external chart libraries are required.
+[![GitHub release](https://img.shields.io/github/release/chill-uk/solar-window-ha?include_prereleases=&sort=semver&color=blue)](https://github.com/chill-uk/solar-window-ha/releases/)
+[![issues - solar-window-ha](https://img.shields.io/github/issues/chill-uk/solar-window-ha)](https://github.com/chill-uk/solar-window-ha/issues)
+[![GH-code-size](https://img.shields.io/github/languages/code-size/chill-uk/solar-window-ha?color=red)](https://github.com/chill-uk/solar-window-ha)
+[![GH-last-commit](https://img.shields.io/github/last-commit/chill-uk/solar-window-ha?style=flat-square)](https://github.com/chill-uk/solar-window-ha/commits/main)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![Validation](https://github.com/chill-uk/solar-window-ha/actions/workflows/validate.yml/badge.svg)](https://github.com/chill-uk/solar-window-ha/actions/workflows/validate.yml)
+[![Tests](https://github.com/chill-uk/solar-window-ha/actions/workflows/tests.yml/badge.svg)](https://github.com/chill-uk/solar-window-ha/actions/workflows/tests.yml)
+![GitHub Downloads](https://img.shields.io/github/downloads/chill-uk/solar-window-ha/total)
 
-**Status:** first installable preview. Detection, imports and calendar calculations have automated tests. This build has not been run against a live Home Assistant instance. Intended baseline: Home Assistant 2026.4; verify setup, recording, options reload and Recorder backfill on your instance before relying on it.
+A local Home Assistant custom integration and bundled dashboard card that show when your solar panels produce throughout the year.
 
-## Install
+Select your existing PV power sensors. Solar Window records daily start and finish times internally and displays **Year → Month → Week** views. No helpers, automations, extra sensors or external chart libraries are required.
 
-1. Extract this archive. Copy `custom_components/solar_window` into `/config/custom_components/solar_window` in Home Assistant. Do not copy the outer `solar-window` project folder into `custom_components`.
-2. Restart Home Assistant.
-3. Open **Settings → Devices & services → Add integration → Solar Window**.
-4. Select your **PV generation power sensor(s)**. Multiple sources are added together. Use generation power, not grid export or household consumption. Sensors must have power device class and use W, kW or MW.
-5. Optionally select the cumulative solar **energy** sensor that already supplies your Energy dashboard. This is used only for historical backfill; it needs recorded long-term statistics. The power source is still required for new recordings.
-6. Keep the defaults initially: start above 20 W for 3 minutes; stop below 10 W for 10 minutes. Change them later through the integration's options.
-7. In **Settings → Dashboards → ⋮ → Resources**, add:
-   - URL: `/solar_window/solar-window-card.js?v=0.1.0`
-   - Type: **JavaScript Module**
-   Enable Advanced Mode on your user profile if Resources is hidden. Resource registration is manual in this preview.
-8. Add a Manual card to a dashboard:
+> [!NOTE]
+> Version 0.1.0 is an initial preview. The recording and calendar logic has automated tests, but setup, live recording and historical backfill still need verification on a real Home Assistant instance. Home Assistant 2026.4.0 or later is the intended baseline.
+
+# Installation
+
+### HACS installation
+
+The quickest way to install this integration is via [HACS](https://github.com/hacs/integration) by clicking the button below:
+
+[![Add to HACS via My Home Assistant](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=chill-uk&repository=solar-window-ha&category=integration)
+
+1. Click the button above to add this repository to HACS as a custom integration.
+2. Install **Solar Window** from HACS.
+3. Restart Home Assistant.
+4. Go to **Settings → Devices & services** and add **Solar Window**.
+5. Configure your sources and add the dashboard card as described below.
+
+This is a HACS custom repository; it is not listed in the default HACS catalogue.
+
+### Manual installation
+
+1. Download `solar_window.zip` from [Releases](https://github.com/chill-uk/solar-window-ha/releases).
+2. Create `/config/custom_components/solar_window` and extract the ZIP's contents into that folder. `manifest.json` and `__init__.py` should sit directly inside it.
+3. Restart Home Assistant.
+4. Add **Solar Window** from **Settings → Devices & services**.
+
+Alternatively, copy `custom_components/solar_window` from this repository into your Home Assistant config directory's `custom_components` folder.
+
+## Configuration
+
+Select your **PV generation power sensor(s)**. Multiple sources are added together. Use generation power, not grid export or household consumption. Sensors must have power device class and use W, kW or MW.
+
+Optionally select the cumulative solar **energy** sensor that already supplies your Energy dashboard. This is used for historical backfill; it needs recorded long-term statistics. A power source is still required for new recordings.
+
+Open the integration's **Configure** dialog to change the sources or detection settings:
+
+| Setting | Default |
+| --- | --- |
+| Start threshold | Above 20 W |
+| Stop threshold | Below 10 W |
+| Start confirmation | 3 minutes |
+| Stop confirmation | 10 minutes |
+
+## Dashboard card
+
+The card is bundled with the integration. Register it once in **Settings → Dashboards → ⋮ → Resources**:
+
+- URL: `/solar_window/solar-window-card.js?v=0.1.0`
+- Type: **JavaScript Module**
+
+Enable Advanced Mode on your user profile if Resources is hidden. Resource registration is manual in this preview. After an update, change the URL's version suffix and refresh the browser to load the new card.
+
+Add a Manual card to your dashboard:
 
 ```yaml
 type: custom:solar-window-card
 title: Solar production window
+view: year
 ```
 
 A card with one configured integration selects it automatically. If you configure multiple installations, specify `entry_id`. You can find it by opening the integration's configuration entry page and copying its ID from the URL:
@@ -78,6 +128,22 @@ python -m compileall -q custom_components
 node --check custom_components/solar_window/frontend/solar-window-card.js
 ```
 
-The project includes the source, tests and an example GitHub Actions workflow. It supports manual installation from this repository. HACS distribution is not configured yet.
+GitHub Actions runs the Python and JavaScript tests, Home Assistant hassfest, HACS validation, Python static checks, and release packaging. The test fixture is synthetic.
 
 Before treating this as a stable release, verify the config/options flows, permissions, storage across restart, sensor unit conversion, frontend rendering on desktop/mobile, and historical statistics queries on a real HA instance. The local frontend tests exercise rendering/navigation in a lightweight DOM stub; they do not certify browser layout or HA API compatibility.
+
+## Releases
+
+Release assets follow the same layout as `ecoflow-p1-ha`: `solar_window.zip` contains the integration files at the archive root, including the bundled frontend card. Repository tests and example data are excluded.
+
+The **Release** workflow validates the version, runs the tests, builds the ZIP, and creates or updates the matching GitHub release. It runs for:
+
+- `v*` tags, which must match `custom_components/solar_window/manifest.json`;
+- changes to the manifest or release workflow on `main`, publishing the manifest version if that release does not already exist;
+- a manual workflow run.
+
+For a new version, update the manifest, `VERSION` in `const.py`, `package.json`, and the card version references together. A main-branch run leaves an existing release untouched. Tagged/manual runs can replace the ZIP asset for that release. Tags containing a hyphen produce a GitHub prerelease.
+
+## License
+
+MIT

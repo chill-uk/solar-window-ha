@@ -1,0 +1,7 @@
+{
+  "name": "Solar Window",
+  "render_readme": true,
+  "homeassistant": "2026.4.0",
+  "zip_release": true,
+  "filename": "solar_window.zip"
+}
